@@ -8,12 +8,15 @@ int main() {
 	ModelMapp M;
 	ModelPersonagem P1;
 	ControllerPersonagem C1;
-	M.mapp_terrain();
+    ViewerPersonagem V1;
 
+    M.mapp_terrain();
 	P1.set_personagem(M);
-	bool rodando = true;
 
-	ViewerPersonagem V1(M,P1,C1,rodando);
-	  
+    bool rodando = true;
+    
+    while(rodando){
+	    ViewerPersonagem V1(M,P1,C1,rodando);
+	}
 	return 0;
 }

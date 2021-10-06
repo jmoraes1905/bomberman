@@ -37,31 +37,36 @@ void ModelPersonagem::set_personagem(ModelMapp &M){
 
 void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
 	
-  // Desocupa posição antiga
+  /** Desocupa posição antiga */
   M.terreno[P.posicao[0]][P.posicao[1]] = 1;
-	
+
+  // TODO: De-bouncing of the position (tirar o while como atualizador da posição)
+  //bool key_state = false;
+
   // Incrementa posição por x e por y
 	P.posicao[0] += x;
 	P.posicao[1] += y;
-	
-	if(P.posicao[0] > MAX_I-1)
-    P.posicao[0] = MAX_I-1;
-  else if(P.posicao[0] < 0)
-    P.posicao[0] = 0;
 
-  if(P.posicao[1] > MAX_J-1)
-    P.posicao[1] = MAX_J-1;        
-  else if(P.posicao[1] < 0)
+	if(P.posicao[0] > MAX_I-1)
+        P.posicao[0] = MAX_I-1;
+    else if(P.posicao[0] < 0)
+        P.posicao[0] = 0;
+
+    if(P.posicao[1] > MAX_J-1)
+        P.posicao[1] = MAX_J-1;
+    else if(P.posicao[1] < 0)
 		P.posicao[1]=0;
 	
-  // Ocupa nova posição
+    // Ocupa nova posição
 	M.terreno[P.posicao[0]][P.posicao[1]] = 0;
-	
 }
 
+/**Construtor do Viewer */
 ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, bool rodando){
+  bool key_left = false;
+  int h, v;
 
-  // Inicializando o subsistema de video do SDL
+  /** Inicializando o subsistema de video do SDL */
   if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
     std::cout << SDL_GetError();
     SDL_Quit();
@@ -119,15 +124,27 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
     SDL_PumpEvents(); 
           
     if (state[SDL_SCANCODE_LEFT]){
-    	// altera mapa e posicao
-      C.move(M,P,-1,0);
-      // atualiza viewer com a nova posicao
-    	target.x = (P.posicao[0])*SECOES_X;  
+        key_left = true;
     }
+    if (state[SDL_SCANCODE_LEFT] != key_left){
+        h = -1;
+        v = 0;
+        C.move(M, P, h, v);
+        target.x = (P.posicao[0])*SECOES_X;
+        key_left = false;
+    }
+      // altera mapa e posicao
+      // C.move(M,P,-1,0);
+      // atualiza viewer com a nova posicao
+      // target.x = (P.posicao[0])*SECOES_X;  
 
     if (state[SDL_SCANCODE_RIGHT]){
-     	C.move(M,P,1,0); 
-     	target.x = (P.posicao[0])*SECOES_X;
+        if (state[SDL_SCANCODE_RIGHT]){
+     	    C.move(M,P,1,0); 
+     	    target.x = (P.posicao[0])*SECOES_X;            
+            //key_state = false;
+        }
+
     }
     
     if (state[SDL_SCANCODE_UP]){ 
