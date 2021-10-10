@@ -345,7 +345,7 @@ void ViewerPersonagem::destroypersonagem(ViewerPersonagem &V){
 
  	SDL_DestroyTexture(personagem);
  	//SDL_DestroyRenderer(renderer);
- 	//SDL_DestroyWindow(window);
+ 	SDL_DestroyWindow(window);
  	//SDL_Quit();	
   
 }
@@ -374,7 +374,7 @@ bool TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPer
     if (state[SDL_SCANCODE_LEFT]){
     	C.move(M,P,-1,0);  
     	trigger = true;
-    	std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";                   // altera mapa e posicao
+    	//std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";                   // altera mapa e posicao
     	//target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
     	}
     if (state[SDL_SCANCODE_RIGHT]){
@@ -433,6 +433,7 @@ int main() {
 		t1 = T1.readkeys(M,P1,C1);
 		if(t1==true) {
 			//destroi o view antigo e cria um novo -- idealmente só para o personagem
+			W1.destroymapp(W1);
 			V1.destroypersonagem(V1);
 			V1.viewpersonagem(M,P1,C1);
 			t1 = false;
