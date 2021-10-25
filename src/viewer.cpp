@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 //#include "func.h"
-// g++ -osemi semiprt.cpp -lSDL2 -lSDL2_image
+// g++ -oview viewer.cpp -lSDL2 -lSDL2_image
 
 const int SCREEN_WIDTH = 512;
 const int SCREEN_HEIGHT = 512;
@@ -111,15 +111,18 @@ void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
 class ViewerMapp{
 
 	private:
-	
+		
+		
 	public:
-		void viewmapp(ModelMapp &M);
-		void destroymapp(ViewerMapp &V)	;
+		SDL_Window* window = nullptr;
+		SDL_Renderer* renderer = nullptr;
+		ViewerMapp(ModelMapp &M);
+		//~ViewerMapp();
 	
 	};
 	
 	
-void ViewerMapp::viewmapp(ModelMapp &M){
+ViewerMapp::ViewerMapp(ModelMapp &M){
 
 // Inicializando o subsistema de video do SDL
 
@@ -129,7 +132,7 @@ void ViewerMapp::viewmapp(ModelMapp &M){
   }
 
   // Criando uma janela
-  SDL_Window* window = nullptr;
+ // SDL_Window* window = nullptr;
 
   window = SDL_CreateWindow("BombermanRPG v0.01",
       SDL_WINDOWPOS_UNDEFINED,
@@ -145,7 +148,7 @@ void ViewerMapp::viewmapp(ModelMapp &M){
   }
 
   // Inicializando o renderizador
-  SDL_Renderer* renderer = SDL_CreateRenderer(
+  renderer = SDL_CreateRenderer(
       window, -1,
       SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   
@@ -163,252 +166,93 @@ void ViewerMapp::viewmapp(ModelMapp &M){
 }
 
 
-void ViewerMapp::destroymapp(ViewerMapp &V){
+/*ViewerMapp::~ViewerMapp(){
+ 
+ SDL_RenderClear(renderer);
+ SDL_DestroyRenderer(renderer);
+ SDL_DestroyWindow(window);
+ SDL_Quit();	
 
-SDL_Window* window = nullptr;
-
-  window = SDL_CreateWindow("BombermanRPG v0.01",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT,
-      SDL_WINDOW_SHOWN);
-  
-  // Caso a janela não tiver sido setada corretamente
-  if (window == nullptr) {
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
-
-  // Inicializando o renderizador
-  SDL_Renderer* renderer = SDL_CreateRenderer(
-      window, -1,
-      SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  
-  if (renderer == nullptr) { // Em caso de erro...
-    SDL_DestroyWindow(window);
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
-
-  // fundo
-  SDL_Texture *tabuleiro = IMG_LoadTexture(renderer, "./tabuleiro.png");
-
- 	SDL_DestroyRenderer(renderer);
- 	SDL_DestroyWindow(window);
- 	SDL_Quit();	
-
-}
+}*/
 
 class ViewerPersonagem{
-  		private:
 
-  		public:
-    			void viewpersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
-    			void destroypersonagem(ViewerPersonagem &V);
-};
+	private:
 
-
-void ViewerPersonagem::viewpersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
-  // Inicializando o subsistema de video do SDL
-
-  if ( SDL_Init (SDL_INIT_VIDEO) < 0 ) {
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
-
-  // Criando uma janela
-  SDL_Window* window = nullptr;
-
-  window = SDL_CreateWindow("BombermanRPG v0.01",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT,
-      SDL_WINDOW_SHOWN);
-  
-  // Caso a janela não tiver sido setada corretamente
-  if (window == nullptr) {
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
-
-  // Inicializando o renderizador
-  SDL_Renderer* renderer = SDL_CreateRenderer(
-      window, -1,
-      SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  
-  if (renderer == nullptr) { // Em caso de erro...
-    SDL_DestroyWindow(window);
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
-
-  
-  // Carregando texturas
-  // personagem
- // SDL_Texture *personagem = IMG_LoadTexture(renderer, "/Documentos/EA872/Tarefas_EA872/bomberman/bomberman.png");
-  // fundo
-  //SDL_Texture *tabuleiro = IMG_LoadTexture(renderer, "/Documentos/EA872/Tarefas_EA872/bomberman/tabuleiro.png");
-  
-  SDL_Texture *personagem = IMG_LoadTexture(renderer, "./bomberman.png");
-  // fundo
-  SDL_Texture *tabuleiro = IMG_LoadTexture(renderer, "./tabuleiro.png");
-
-
-  // Quadrado onde a textura sera desenhada
-  SDL_Rect target;
-  target.x = P.posicao[0]*SECOES_X;
-  target.y = P.posicao[1]*SECOES_Y;
-  SDL_QueryTexture(personagem, nullptr, nullptr, &target.w, &target.h);
-
-  // Controlador:
-  //bool rodando = true;
-
-  // Variaveis para verificar eventos
-  SDL_Event evento; // eventos discretos
-  const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
-
-/*  while(rodando){
-    // Polling de eventos
-    SDL_PumpEvents(); // atualiza estado do teclado
-        
-    if (state[SDL_SCANCODE_LEFT]){
-    	C.move(M,P,-1,0);                     // altera mapa e posicao
-    	target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
-    	}
-    if (state[SDL_SCANCODE_RIGHT]){
-     	C.move(M,P,1,0); 
-     	target.x = (P.posicao[0])*SECOES_X;
-     	}
-    if (state[SDL_SCANCODE_UP]){ 
-    	C.move(M,P,0,-1); 
-    	target.y = (P.posicao[1])*SECOES_Y;
-    	}
-    if (state[SDL_SCANCODE_DOWN]){
-    	C.move(M,P,0,1);  
-    	target.y = (P.posicao[1])*SECOES_Y;
-	}
-    while (SDL_PollEvent(&evento)) {
-      if (evento.type == SDL_QUIT) {
-        rodando = false;
-		      }
-      // Exemplos de outros eventos.
-      // Que outros eventos poderiamos ter e que sao uteis?
-      //if (evento.type == SDL_KEYDOWN) {
-      //}
-      //if (evento.type == SDL_MOUSEBUTTONDOWN) {
-      //}
-		    }
-*/
-    // Desenhar a cena
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, tabuleiro, nullptr, nullptr);
-    SDL_RenderCopy(renderer, personagem, nullptr, &target);
-    SDL_RenderPresent(renderer);
-
-    // Delay para diminuir o framerate
-    SDL_Delay(50);
-  	
-}
-void ViewerPersonagem::destroypersonagem(ViewerPersonagem &V){
+	public:
+		ViewerPersonagem(ModelPersonagem &P, ViewerMapp &V);
+		void destroypersonagem(ViewerPersonagem &P, ViewerMapp &V);
+	};
 	
-  SDL_Window* window = nullptr;
 
-  window = SDL_CreateWindow("BombermanRPG v0.01",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT,
-      SDL_WINDOW_SHOWN);
-  
-  // Caso a janela não tiver sido setada corretamente
-  if (window == nullptr) {
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
+ViewerPersonagem::ViewerPersonagem(ModelPersonagem &P, ViewerMapp &V){
 
-  // Inicializando o renderizador
-  SDL_Renderer* renderer = SDL_CreateRenderer(
-      window, -1,
-      SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  
-  if (renderer == nullptr) { // Em caso de erro...
-    SDL_DestroyWindow(window);
-    std::cout << SDL_GetError();
-    SDL_Quit();
-  }
+	SDL_Texture *personagem = IMG_LoadTexture(V.renderer, "./bomberman.png");
+	SDL_Rect target;
+  	target.x = P.posicao[0]*SECOES_X;
+  	target.y = P.posicao[1]*SECOES_Y;
+  	SDL_QueryTexture(personagem, nullptr, nullptr, &target.w, &target.h);
+  	
+  	//SDL_RenderClear(V.renderer);
+  	SDL_RenderCopy(V.renderer, personagem, nullptr, &target);
+    	SDL_RenderPresent(V.renderer);
+    	
+    	//std::cout << "Eu estive aqui" << std::endl;
+ 
+ }
+ 
+void ViewerPersonagem::destroypersonagem(ViewerPersonagem &P, ViewerMapp &V){
 
-  SDL_Texture *personagem = IMG_LoadTexture(renderer, "./bomberman.png");
-  // fundo
-  //SDL_Texture *tabuleiro = IMG_LoadTexture(renderer, "./tabuleiro.png");
-
- 	SDL_DestroyTexture(personagem);
- 	//SDL_DestroyRenderer(renderer);
- 	SDL_DestroyWindow(window);
- 	//SDL_Quit();	
-  
-}
+ //SDL_DestroyTexture(P.personagem);
+ //SDL_DestroyTexture(tabuleiro);
+ SDL_RenderClear(V.renderer);
+ SDL_DestroyRenderer(V.renderer);
+ SDL_DestroyWindow(V.window);
+ SDL_Quit();		
+	 
+ }
+ 
 
 class TecladoPersonagem{
 
 	private:
 	
 	public:
-		bool readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+		void readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+		
 };
 
-bool TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
+void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
 	
-  bool rodando = true;
-  bool trigger = false;
+	//std::cout<< "Eu cheguei!"<< std::endl;
+	SDL_Event evento; // eventos discretos
+  	const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
   	
-	// Variaveis para verificar eventos
-  SDL_Event evento; // eventos discretos
-  const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
-
- // while(rodando){
-    // Polling de eventos
-    SDL_PumpEvents(); // atualiza estado do teclado
-        
-    if (state[SDL_SCANCODE_LEFT]){
-    	C.move(M,P,-1,0);  
-    	trigger = true;
-    	//std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";                   // altera mapa e posicao
-    	//target.x = (P.posicao[0])*SECOES_X;  // atualiza viewer com a nova posicao
-    	}
-    if (state[SDL_SCANCODE_RIGHT]){
-     	C.move(M,P,1,0); 
-     	trigger = true;
-     	//std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-     	//target.x = (P.posicao[0])*SECOES_X;
-     	}
-    if (state[SDL_SCANCODE_UP]){ 
-    	C.move(M,P,0,-1); 
-    	trigger = true;
-    	//std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-    	//target.y = (P.posicao[1])*SECOES_Y;
-    	}
-    if (state[SDL_SCANCODE_DOWN]){
-    	C.move(M,P,0,1);
-    	trigger = true;  
-    	//std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-    	//target.y = (P.posicao[1])*SECOES_Y;
-	}
-    while (SDL_PollEvent(&evento)) {
-      if (evento.type == SDL_QUIT) {
-        rodando = false;
-		      }
-      // Exemplos de outros eventos.
-      // Que outros eventos poderiamos ter e que sao uteis?
-      //if (evento.type == SDL_KEYDOWN) {
-      //}
-      //if (evento.type == SDL_MOUSEBUTTONDOWN) {
-      }
-		    //}
+	SDL_PumpEvents();// atualiza estado do teclado
 	
-     return trigger;	
+	
+	if (state[SDL_SCANCODE_LEFT]){
+    		C.move(M,P,-1,0);  
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";         
+    	}
+    	
+   	if (state[SDL_SCANCODE_RIGHT]){
+     		C.move(M,P,1,0); 
+     		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
+     	}
+     	
+    	if (state[SDL_SCANCODE_UP]){ 
+    		C.move(M,P,0,-1); 
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
+    	}
+    	
+    	if (state[SDL_SCANCODE_DOWN]){
+    		C.move(M,P,0,1);
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
 	}
+   
+}		      
+		      
 
 int main() {
 	
@@ -418,30 +262,16 @@ int main() {
 	M.mapp_terrain();
 	M.forbbid_terrain();
 	TecladoPersonagem T1;
-	ViewerMapp W1;
-	ViewerPersonagem V1;
-
 	
-	bool t1;
-	bool rodando = true;
-	
+	ViewerMapp W(M);
 	P1.set_personagem(M,7,7);
-	W1.viewmapp(M);
-	//V1.viewpersonagem(M,P1,C1);
-	while(rodando){	
+	ViewerPersonagem V1(P1,W);
 	
-		t1 = T1.readkeys(M,P1,C1);
-		if(t1==true) {
-			//destroi o view antigo e cria um novo -- idealmente só para o personagem
-			W1.destroymapp(W1);
-			V1.destroypersonagem(V1);
-			V1.viewpersonagem(M,P1,C1);
-			t1 = false;
-		}
-	}
-
-  
-  
+	T1.readkeys(M,P1,C1);
+	
+	
+		
+		
    
   return 0;
 }
