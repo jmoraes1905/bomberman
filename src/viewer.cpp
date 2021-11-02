@@ -60,10 +60,10 @@ class ModelPersonagem{
 void ModelPersonagem::set_personagem(ModelMapp &M, int xini, int yini){
 	
 	if(xini>MAX_I-1)
-    xini = MAX_I-1;
+    		xini = MAX_I-1;
   
-  if(yini>MAX_J-1)
-    yini = MAX_J-1;        
+  	if(yini>MAX_J-1)
+    		yini = MAX_J-1;        
 	
 	
 	M.terreno[xini][yini] = 0;
@@ -172,20 +172,21 @@ ViewerMapp::ViewerMapp(ModelMapp &M){
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);
  SDL_Quit();	
-
 }*/
 
 class ViewerPersonagem{
 
 	private:
+		bool onscreen;
 
 	public:
-		ViewerPersonagem(ModelPersonagem &P, ViewerMapp &V);
-		void destroypersonagem(ViewerPersonagem &P, ViewerMapp &V);
+		ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, ViewerMapp &V);
+		//void readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+		
 	};
 	
 
-ViewerPersonagem::ViewerPersonagem(ModelPersonagem &P, ViewerMapp &V){
+ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, ViewerMapp &V){
 
 	SDL_Texture *personagem = IMG_LoadTexture(V.renderer, "./bomberman.png");
 	SDL_Rect target;
@@ -197,23 +198,77 @@ ViewerPersonagem::ViewerPersonagem(ModelPersonagem &P, ViewerMapp &V){
   	SDL_RenderCopy(V.renderer, personagem, nullptr, &target);
     	SDL_RenderPresent(V.renderer);
     	
-    	//std::cout << "Eu estive aqui" << std::endl;
+    	// Controlador:
+ 	onscreen = true;
+	SDL_Event evento; // eventos discretos
+  	const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
+  	
+	SDL_PumpEvents();// atualiza estado do teclado
+	
+	while(onscreen){
+	
+	if (state[SDL_SCANCODE_LEFT]){
+    		C.move(M,P,-1,0);  
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n"; 
+    		target.x = P.posicao[0]*SECOES_X;
+    		target.y = P.posicao[1]*SECOES_Y;
+    		        
+    	}
+    	
+   	if (state[SDL_SCANCODE_RIGHT]){
+     		C.move(M,P,1,0); 
+     		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
+     		target.x = P.posicao[0]*SECOES_X;
+    		target.y = P.posicao[1]*SECOES_Y;
+     	}
+     	
+    	if (state[SDL_SCANCODE_UP]){ 
+    		C.move(M,P,0,-1); 
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
+    		target.x = P.posicao[0]*SECOES_X;
+    		target.y = P.posicao[1]*SECOES_Y;
+    	}
+    	
+    	if (state[SDL_SCANCODE_DOWN]){
+    		C.move(M,P,0,1);
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
+    		target.x = P.posicao[0]*SECOES_X;
+    		target.y = P.posicao[1]*SECOES_Y;
+	}
+	
+	while (SDL_PollEvent(&evento)) {
+      		if (evento.type == SDL_QUIT) {
+        		onscreen = false;
+      		}
+      	}
+      // Exemplos de outros eventos.
+      // Que outros eventos poderiamos ter e que sao uteis?
+      //if (evento.type == SDL_KEYDOWN) {
+      //}
+      //if (evento.type == SDL_MOUSEBUTTONDOWN) {
+      //}
+    
+
+    // Desenhar a cena
+    SDL_RenderClear(V.renderer);
+    //SDL_RenderCopy(renderer, texture2, nullptr, nullptr);
+    SDL_RenderCopy(V.renderer, personagem, nullptr, &target);
+    SDL_RenderPresent(V.renderer);
+
+    // Delay para diminuir o framerate
+    SDL_Delay(10);
+  }
+
+  SDL_DestroyTexture(personagem);
+  SDL_DestroyRenderer(V.renderer);
+  SDL_DestroyWindow(V.window);
+  SDL_Quit();
  
  }
  
-void ViewerPersonagem::destroypersonagem(ViewerPersonagem &P, ViewerMapp &V){
 
- //SDL_DestroyTexture(P.personagem);
- //SDL_DestroyTexture(tabuleiro);
- SDL_RenderClear(V.renderer);
- SDL_DestroyRenderer(V.renderer);
- SDL_DestroyWindow(V.window);
- SDL_Quit();		
-	 
- }
- 
 
-class TecladoPersonagem{
+/*class TecladoPersonagem{
 
 	private:
 	
@@ -222,8 +277,9 @@ class TecladoPersonagem{
 		
 };
 
-void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
+void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){*/
 	
+/*void ViewerPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){	
 	//std::cout<< "Eu cheguei!"<< std::endl;
 	SDL_Event evento; // eventos discretos
   	const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
@@ -233,7 +289,8 @@ void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPer
 	
 	if (state[SDL_SCANCODE_LEFT]){
     		C.move(M,P,-1,0);  
-    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";         
+    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n"; 
+    		        
     	}
     	
    	if (state[SDL_SCANCODE_RIGHT]){
@@ -250,8 +307,14 @@ void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPer
     		C.move(M,P,0,1);
     		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
 	}
+	
+	/*while (SDL_PollEvent(&evento)) {
+      		if (evento.type == SDL_QUIT) {
+        		rodando = false;
+      		}
+      	}*/
    
-}		      
+//}		      
 		      
 
 int main() {
@@ -261,17 +324,12 @@ int main() {
 	ControllerPersonagem C1;
 	M.mapp_terrain();
 	M.forbbid_terrain();
-	TecladoPersonagem T1;
+	
 	
 	ViewerMapp W(M);
 	P1.set_personagem(M,7,7);
-	ViewerPersonagem V1(P1,W);
-	
-	T1.readkeys(M,P1,C1);
-	
-	
-		
-		
+	ViewerPersonagem V1(M,P1,C1,W);
+				
    
   return 0;
 }
