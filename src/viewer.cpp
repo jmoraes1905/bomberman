@@ -181,7 +181,6 @@ class ViewerPersonagem{
 
 	public:
 		ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, ViewerMapp &V);
-		//void readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
 		
 	};
 	
