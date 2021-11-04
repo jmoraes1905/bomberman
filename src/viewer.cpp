@@ -83,24 +83,17 @@ class ControllerPersonagem{
 
 void ControllerPersonagem::move(ModelMapp &M, ModelPersonagem &P, int x, int y){
 	
+	if(x>0) x = 1;
+	else if(x<0) x = -1;
 	
-	if(M.terreno[P.posicao[0]+x][P.posicao[1]+y]!=-1){
+	if(y>0) y = 1;
+	else if (y<0) y = -1;
+	
+	if(M.terreno[P.posicao[0]+x][P.posicao[1]+y]==1){
 		M.terreno[P.posicao[0]][P.posicao[1]] = 1; //Desocupa posicao antiga
 	
 		P.posicao[0] = P.posicao[0] +x;
 		P.posicao[1] = P.posicao[1] +y;
-	
-		if(P.posicao[0] >MAX_I -1)
-                	P.posicao[0]  = MAX_I -1;
-                
-        	else if(P.posicao[0] < 0)
-        		P.posicao[0] = 0;
-        	
-        	if(P.posicao[1]>MAX_J -1)
-        		P.posicao[1] = MAX_J -1;    
-        	    
-		else if(P.posicao[1]<0)
-			P.posicao[1] =0;
 	
 		M.terreno[P.posicao[0]][P.posicao[1]] = 0; // Ocupa a nova posicao
 	
@@ -178,6 +171,8 @@ class ViewerPersonagem{
 
 	private:
 		bool onscreen;
+		SDL_Window* window = nullptr;
+		SDL_Renderer* renderer = nullptr;
 
 	public:
 		ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C, ViewerMapp &V);
@@ -265,57 +260,6 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
  
  }
  
-
-
-/*class TecladoPersonagem{
-
-	private:
-	
-	public:
-		void readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
-		
-};
-
-void TecladoPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){*/
-	
-/*void ViewerPersonagem::readkeys(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){	
-	//std::cout<< "Eu cheguei!"<< std::endl;
-	SDL_Event evento; // eventos discretos
-  	const Uint8* state = SDL_GetKeyboardState(nullptr); // estado do teclado
-  	
-	SDL_PumpEvents();// atualiza estado do teclado
-	
-	
-	if (state[SDL_SCANCODE_LEFT]){
-    		C.move(M,P,-1,0);  
-    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n"; 
-    		        
-    	}
-    	
-   	if (state[SDL_SCANCODE_RIGHT]){
-     		C.move(M,P,1,0); 
-     		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-     	}
-     	
-    	if (state[SDL_SCANCODE_UP]){ 
-    		C.move(M,P,0,-1); 
-    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-    	}
-    	
-    	if (state[SDL_SCANCODE_DOWN]){
-    		C.move(M,P,0,1);
-    		std::cout << P.posicao[0] << " " << P.posicao[1] << "\n";
-	}
-	
-	/*while (SDL_PollEvent(&evento)) {
-      		if (evento.type == SDL_QUIT) {
-        		rodando = false;
-      		}
-      	}*/
-   
-//}		      
-		      
-
 int main() {
 	
 	ModelMapp M;
