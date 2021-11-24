@@ -153,14 +153,17 @@ class ViewerPersonagem{
 		bool onscreen;
 		SDL_Window* window = nullptr;
 		SDL_Renderer* renderer = nullptr;
+		SDL_Texture *personagem = nullptr;
 		
 	public:
-		ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+		ViewerPersonagem();
+		void view(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C);
+		~ViewerPersonagem();
 		
 	};
 	
 
-ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){
+ViewerPersonagem::ViewerPersonagem(){
 
 	// Inicializando o subsistema de video do SDL
 
@@ -195,9 +198,12 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
     		std::cout << SDL_GetError();
     		SDL_Quit();
   	}
-	
+    	
+    	}
+    	
+void ViewerPersonagem::view(ModelMapp &M, ModelPersonagem &P, ControllerPersonagem &C){   
 
-	SDL_Texture *personagem = IMG_LoadTexture(renderer, "./bomberman.png");
+	personagem = IMG_LoadTexture(renderer, "./bomberman.png");
 	SDL_Rect target;
   	target.x = P.posicao[0]*SECOES_X;
   	target.y = P.posicao[1]*SECOES_Y;
@@ -207,7 +213,7 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
   	SDL_RenderClear(renderer);
   	SDL_RenderCopy(renderer, personagem, nullptr, &target);
     	SDL_RenderPresent(renderer);
-    	
+    		
     	// Controlador:
  	onscreen = true;
  	bool ready = false;
@@ -216,10 +222,8 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
   	
 	SDL_PumpEvents();// atualiza estado do teclado
 	
-	while(onscreen){
-	
 		if (state[SDL_SCANCODE_LEFT]){
-			if(ready) C.attack(M,P,1);	
+			//if(ready) C.attack(M,P,1);	
     			C.move(M,P,-1,0);  
     			std::cout << P.posicao[0] << " " << P.posicao[1] << "\n"; 
     			target.x = P.posicao[0]*SECOES_X;
@@ -258,6 +262,7 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
         			onscreen = false;
       			}
       		}
+      	
       // Exemplos de outros eventos.
       // Que outros eventos poderiamos ter e que sao uteis?
       //if (evento.type == SDL_KEYDOWN) {
@@ -274,7 +279,10 @@ ViewerPersonagem::ViewerPersonagem(ModelMapp &M, ModelPersonagem &P, ControllerP
     // Delay para diminuir o framerate
     SDL_Delay(10);
   }
+  
+  ViewerPersonagem::~ViewerPersonagem(){
 
+  SDL_RenderClear(renderer);	
   SDL_DestroyTexture(personagem);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
@@ -292,9 +300,11 @@ int main() {
 	M.build_blocks();
 	json j;
 	
+	ViewerPersonagem V1;
+	
 	char save, load;
 	
-	std::cin >> load;
+	//std::cin >> load;
 	
 	if(load =='l'){
 		std::ifstream f1;
@@ -305,10 +315,9 @@ int main() {
 			P1.set_personagem(M,j["Estado"]["personagem"]["x"],j["Estado"]["personagem"]["y"]);
 			}
 		}
-  
-	ViewerPersonagem V1(M,P1,C1);
+  	 while(1) V1.view(M,P1,C1);
 	
-	std::cin >> save;
+	//std::cin >> save;
 	
 	j["Estado"]["terreno"] = M.terreno;
 	j["Estado"]["personagem"]["x"] = P1.posicao[0];
